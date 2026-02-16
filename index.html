@@ -1,0 +1,1151 @@
+<html lang="ru">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Ultimate Investor Dashboard • 15.02.2026</title>
+
+<!-- ECharts + WebGL -->
+<script src="https://cdn.jsdelivr.net/npm/echarts@5/dist/echarts.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/echarts-gl@2/dist/echarts-gl.min.js"></script>
+
+<style>
+  :root{
+    --bg:#070b18;
+    --card:#0f1730;
+    --card2:#0a1124;
+    --line:#1f2a4d;
+    --text:#eef1ff;
+    --muted:#9aa4d4;
+    --ok:#2dd4bf;
+    --warn:#fbbf24;
+    --bad:#fb7185;
+    --accent:#60a5fa;
+  }
+  *{box-sizing:border-box}
+  body{
+    margin:0;
+    background: radial-gradient(1200px 700px at 15% 0%, #2a1b3d 0%, #18224a 18%, var(--bg) 55%);
+    color:var(--text);
+    font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial;
+    line-height:1.35;
+  }
+  .wrap{max-width:1480px;margin:0 auto;padding:28px 18px 46px}
+  header{
+    display:flex;gap:14px;align-items:stretch;justify-content:space-between;flex-wrap:wrap
+  }
+  .hero{
+    flex:1;
+    padding:18px 18px;
+    border:1px solid rgba(251,113,133,.40);
+    background:linear-gradient(180deg, rgba(251,113,133,.18), rgba(15,23,48,.78));
+    border-radius:22px;
+    box-shadow:0 18px 40px rgba(0,0,0,.35);
+    min-width: 320px;
+  }
+  h1{margin:0;font-size:28px;letter-spacing:.2px}
+  .sub{margin-top:8px;color:var(--muted);font-size:14px}
+  .pillrow{margin-top:10px;display:flex;gap:10px;flex-wrap:wrap}
+  .pill{
+    display:inline-flex;gap:8px;align-items:center;
+    padding:9px 12px;border-radius:999px;
+    border:1px solid var(--line);
+    background:rgba(15,23,48,.65);
+    color:var(--muted);
+    font-size:13px;
+  }
+  .pill b{color:var(--text)}
+  .dot{width:10px;height:10px;border-radius:999px;display:inline-block}
+  .dot.ok{background:var(--ok)}
+  .dot.warn{background:var(--warn)}
+  .dot.bad{background:var(--bad)}
+  .panel{
+    width: 440px;
+    padding:14px;
+    border:1px solid var(--line);
+    border-radius:18px;
+    background:rgba(15,23,48,.62);
+    box-shadow:0 14px 28px rgba(0,0,0,.22);
+    min-width: 320px;
+  }
+  .lead{margin:0 0 8px;font-size:15px}
+  .muted{color:var(--muted)}
+  .grid{display:grid;gap:14px}
+  .kpis{grid-template-columns: repeat(12, 1fr); margin-top:14px}
+  .card{
+    grid-column:span 3;
+    padding:14px 14px;
+    border-radius:18px;
+    border:1px solid var(--line);
+    background:rgba(17,26,51,.72);
+    box-shadow:0 10px 22px rgba(0,0,0,.22);
+  }
+  .card h3{
+    margin:0 0 6px;
+    font-size:12px;
+    color:var(--muted);
+    font-weight:800;
+    letter-spacing:.6px;
+    text-transform:uppercase;
+  }
+  .big{font-size:22px;font-weight:900}
+  .hint{margin-top:6px;color:var(--muted);font-size:12px}
+  .tabs{
+    margin-top:14px;
+    display:flex;gap:10px;flex-wrap:wrap;
+  }
+  .tab{
+    cursor:pointer;
+    padding:10px 12px;
+    border-radius:12px;
+    border:1px solid var(--line);
+    background:rgba(17,26,51,.80);
+    color:var(--text);
+    font-weight:900;
+  }
+  .tab.active{outline:2px solid rgba(96,165,250,.65)}
+  .section{
+    margin-top:18px;
+    padding:18px;
+    border-radius:22px;
+    border:1px solid var(--line);
+    background:linear-gradient(180deg, rgba(17,26,51,.70), rgba(15,23,48,.70));
+  }
+  .section h2{margin:0 0 10px;font-size:18px}
+  .cols{display:grid;grid-template-columns: 1fr 1fr;gap:14px}
+  .chart{
+    height:520px;
+    border-radius:20px;
+    background:linear-gradient(145deg,var(--card),var(--card2));
+    border:1px solid var(--line);
+    box-shadow:0 22px 46px rgba(0,0,0,.38);
+    padding:10px;
+  }
+  .chart.small{height:380px}
+  .chart.tall{height:620px}
+  .note{color:var(--muted);font-size:12px;margin-top:10px}
+  .flags{display:grid;gap:10px}
+  .flag{
+    padding:12px 12px;
+    border-radius:16px;
+    border:1px solid rgba(251,113,133,.35);
+    background:rgba(251,113,133,.08);
+  }
+  .flag.warn{border-color:rgba(251,191,36,.35);background:rgba(251,191,36,.08)}
+  .flag.ok{border-color:rgba(45,212,191,.35);background:rgba(45,212,191,.07)}
+  .flag b{color:var(--text)}
+  .meta{color:var(--muted);font-size:12px;margin-top:6px}
+  .controls{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+  .btn{
+    cursor:pointer;
+    padding:10px 12px;
+    border-radius:12px;
+    border:1px solid var(--line);
+    background:rgba(17,26,51,.80);
+    color:var(--text);
+    font-weight:900;
+  }
+  .btn.active{outline:2px solid rgba(251,113,133,.62)}
+  .spacer{height:2px;background:rgba(31,42,77,.65);border-radius:999px;margin:10px 0}
+  .footer{margin-top:14px;color:var(--muted);font-size:12px}
+  a.link{color:var(--accent);text-decoration:none;font-weight:800}
+  @media (max-width: 1100px){
+    .card{grid-column:span 6}
+    .cols{grid-template-columns:1fr}
+    .panel{width:auto}
+    .chart{height:460px}
+    .chart.small{height:360px}
+  }
+</style>
+</head>
+
+<body>
+<div class="wrap">
+
+<header>
+  <div class="hero">
+    <h1>🚨 Ultimate Investor Dashboard • 15.02.2026</h1>
+    <div class="sub">PE-grade Crisis Dashboard: контроль ликвидности, банка, стройки и команды. WebGL 3D. Всё в одном файле.</div>
+
+    <div class="pillrow">
+      <span class="pill"><span class="dot bad"></span> Статус: <b style="color:var(--bad)">критично</b> (но управляемо при смене режима)</span>
+      <span class="pill">Дедлайн антикризиса: <b id="deadlineText">—</b></span>
+      <span class="pill">Таймер: <b id="countdown">—</b></span>
+    </div>
+
+    <div class="tabs">
+      <button class="tab active" data-view="overview">Overview</button>
+      <button class="tab" data-view="capital">Capital & Debt</button>
+      <button class="tab" data-view="risk">Risk & Control</button>
+      <button class="tab" data-view="sensitivity">Sensitivity Lab</button>
+      <button class="tab" data-view="action">30-Day Action Plan</button>
+    </div>
+  </div>
+
+  <div class="panel">
+    <div class="lead"><b>Сценарии</b></div>
+    <div class="muted">Переключайте: KPI, графики и индекс угрозы пересчитаются сразу.</div>
+    <div class="spacer"></div>
+    <div class="controls">
+      <button class="btn active" data-scn="base">Сейчас</button>
+      <button class="btn" data-scn="turnaround">Антикризис 30 дней</button>
+      <button class="btn" data-scn="drift">Инерция</button>
+      <button class="btn" data-scn="stress">Стресс</button>
+    </div>
+    <div class="spacer"></div>
+    <div class="lead" style="margin-top:6px"><b>Экспорт</b></div>
+    <div class="muted">Сохранить текущие данные в JSON для аудита/банка.</div>
+    <div style="margin-top:10px;display:flex;gap:10px;flex-wrap:wrap">
+      <button class="btn" id="exportJson">⬇ Export JSON</button>
+      <button class="btn" id="autoPlay">▶ Auto-play сценариев</button>
+    </div>
+    <div class="footer">
+      Под GitHub Pages: просто `index.html` + включить Pages.
+    </div>
+  </div>
+</header>
+
+<!-- KPI row -->
+<div class="grid kpis" id="kpiRow"></div>
+
+<!-- Views -->
+<section class="section" id="view-overview">
+  <h2>Overview: где болит прямо сейчас</h2>
+  <div class="cols">
+    <div class="panel">
+      <div class="lead"><b>Красные флаги (реальные триггеры банкротства)</b></div>
+      <div class="flags" id="flags"></div>
+      <div class="note">
+        Фокус инвестфонда: не “прибыльность”, а <b>контроль конверсии денег → бетон</b> и <b>управляемость cash runway</b>.
+      </div>
+    </div>
+
+    <div class="chart small" id="gaugeThreat"></div>
+  </div>
+
+  <div class="cols" style="margin-top:14px">
+    <div class="chart" id="debt3d"></div>
+    <div class="chart" id="waterfall3d"></div>
+  </div>
+</section>
+
+<section class="section" id="view-capital" style="display:none">
+  <h2>Capital & Debt: пирамида долга и где “протечка”</h2>
+  <div class="cols">
+    <div class="chart" id="pfUsage3d"></div>
+    <div class="chart" id="pfSpend3d"></div>
+  </div>
+  <div class="cols" style="margin-top:14px">
+    <div class="chart" id="escrow3d"></div>
+    <div class="chart" id="sales3d"></div>
+  </div>
+</section>
+
+<section class="section" id="view-risk" style="display:none">
+  <h2>Risk & Control: матрица рисков, radar, контрольные метрики</h2>
+  <div class="cols">
+    <div class="chart" id="riskHeat3d"></div>
+    <div class="chart" id="riskRadar"></div>
+  </div>
+  <div class="cols" style="margin-top:14px">
+    <div class="chart" id="ready3d"></div>
+    <div class="chart" id="timeline"></div>
+  </div>
+</section>
+
+<section class="section" id="view-sensitivity" style="display:none">
+  <h2>Sensitivity Lab: DSCR / NPV proxy surface (3D) + LTV matrix (3D)</h2>
+  <div class="cols">
+    <div class="chart tall" id="dscrSurface"></div>
+    <div class="chart tall" id="ltvSurface"></div>
+  </div>
+  <div class="note">
+    Это не “предсказание”, а лаборатория управленческих решений: где тонко — там и режем риск (цена/темп/расход/переговоры с банком).
+  </div>
+</section>
+
+<section class="section" id="view-action" style="display:none">
+  <h2>30-Day Action Plan: план как у фонда (не как у “строителей”)</h2>
+  <div class="panel">
+    <div class="lead"><b>Неделя 1 (0–7 дней): остановить кровотечение</b></div>
+    <ol class="muted" style="margin:0;padding-left:18px">
+      <li>Единый командный центр: <b>антикризисный руководитель стройки</b> + финконтроль, полномочия “stop/approve”.</li>
+      <li>13-недельный ДДС: ежедневная актуализация, платежный комитет, лимиты на статьи.</li>
+      <li>ТОП-10 кредиторов: “мораторий” + график выплат приоритет-1 (иначе остановка работ).</li>
+      <li>Пакет в банк: факт-готовность, критический путь, актирование, возврат целевого использования.</li>
+      <li>Команда: график частичных выплат + дисциплина коммуникаций (иначе распад управления).</li>
+    </ol>
+
+    <div class="spacer"></div>
+    <div class="lead"><b>Неделя 2–4 (8–30 дней): вернуть доверие банку и управляемость</b></div>
+    <ol class="muted" style="margin:0;padding-left:18px">
+      <li>Еженедельный “бетон-репорт”: критический путь, отклонения, причины, решения.</li>
+      <li>План “+3–5% готовности” в 30 дней: разрез по домам/секциям/вехам.</li>
+      <li>Реструктуризация кредиторки: конвертация части в этапные платежи, взаимозачеты, новые условия.</li>
+      <li>Коммерческий блок: быстрая программа продаж (ипотека/субсидия/дисконт за скорость оплаты).</li>
+      <li>Юридический контур: защита от блокировок подрядчиков/техзаказчика, контракты под контроль.</li>
+    </ol>
+
+    <div class="footer">
+      Если вы хотите — я превращу этот план в “чек-лист” на неделю (таблица + RACI + дедлайны).
+    </div>
+  </div>
+</section>
+
+</div>
+
+<script>
+/* =========================================================
+   DATA LAYER (замените на backend/json при желании)
+   ========================================================= */
+
+const BASE = {
+  meta: {
+    reportDate: "2026-02-15",
+    deadlineDate: "2026-03-16T23:59:59+03:00", // 30 дней от 15.02, можно менять
+    currency: "RUB",
+  },
+  kpi: {
+    cash_mln: 1.59,
+    ap_total_mln: 119.4,
+    ap_p1_mln: 77.1,
+    ap_p2_mln: 12.4,
+    ap_p3_mln: 29.9,
+    debt_total_mln: 1175.0,
+    pf_limit_mln: 1055.8,
+    pf_drawn_mln: 863.6,
+    pf_undrawn_mln: 192.2,
+    pf_misuse_mln: 190.4,
+    pf_cmr_mln: 459.3,
+    pf_admin_mln: 213.9,
+    pf_divert_mln: 190.4,
+    escrow_total_mln: 839.0,
+    ready_mol_pct: 32.5,
+    ready_don_pct: 27.5,
+    // portfolio sales (m2)
+    projects: [
+      {name:"ЖК Молодёжный", sold_m2: 3732, remain_m2: 1385, contracts_mln: 475.5, escrow_mln: 452.8},
+      {name:"ЖК Донецкий",   sold_m2: 2960, remain_m2: 1335, contracts_mln: 460.9, escrow_mln: 385.9},
+    ]
+  }
+};
+
+// сценарии: коэффициенты/изменения (упрощенно, но управленчески полезно)
+const SCENARIOS = {
+  base: {
+    name: "Сейчас",
+    cashMult: 1.0,
+    apMult: 1.0,
+    pfAccess: "заморожено",
+    readyAdd: 0.0,
+    threatBase: 82
+  },
+  turnaround: {
+    name: "Антикризис 30 дней",
+    cashOverride: 10.0,
+    apReduceP1: 0.40,     // погашаем 40% приоритета 1
+    pfAccess: "разморожено частично",
+    readyAdd: 4.0,        // +4 п.п. готовности
+    threatBase: 48
+  },
+  drift: {
+    name: "Инерция",
+    cashOverride: 0.5,
+    apMult: 1.25,
+    pfAccess: "заморожено",
+    readyAdd: -1.0,
+    threatBase: 92
+  },
+  stress: {
+    name: "Стресс",
+    cashOverride: 0.5,
+    apMult: 1.35,
+    pfAccess: "заморожено/ограничено",
+    readyAdd: -2.0,
+    threatBase: 97
+  }
+};
+
+/* =========================================================
+   UTILS
+   ========================================================= */
+const fmt = {
+  mln: (x) => new Intl.NumberFormat('ru-RU',{minimumFractionDigits:1, maximumFractionDigits:1}).format(x) + ' млн ₽',
+  pct: (x) => (x).toFixed(1).replace('.', ',') + '%',
+  num: (x) => new Intl.NumberFormat('ru-RU').format(x)
+};
+
+function clamp(v, a, b){ return Math.max(a, Math.min(b, v)); }
+
+function computeState(scnKey){
+  const s = SCENARIOS[scnKey];
+  const k = JSON.parse(JSON.stringify(BASE.kpi));
+
+  // cash
+  if (typeof s.cashOverride === "number") k.cash_mln = s.cashOverride;
+  else k.cash_mln = k.cash_mln * (s.cashMult ?? 1.0);
+
+  // ap
+  k.ap_total_mln = k.ap_total_mln * (s.apMult ?? 1.0);
+
+  if (typeof s.apReduceP1 === "number"){
+    const reduce = k.ap_p1_mln * s.apReduceP1;
+    k.ap_total_mln = Math.max(0, k.ap_total_mln - reduce);
+    k.ap_p1_mln = Math.max(0, k.ap_p1_mln - reduce);
+  }
+
+  // readiness
+  k.ready_mol_pct = clamp(k.ready_mol_pct + (s.readyAdd ?? 0), 0, 100);
+  k.ready_don_pct = clamp(k.ready_don_pct + (s.readyAdd ?? 0), 0, 100);
+
+  // threat index (0..100) — простая модель: меньше cash, больше AP, меньше readiness => выше угроза
+  const cashScore = clamp(100 - (k.cash_mln * 6), 0, 100);            // 10 млн => ~40
+  const apScore   = clamp((k.ap_total_mln / 1.5), 0, 100);            // 150 млн => 100
+  const readyAvg  = (k.ready_mol_pct + k.ready_don_pct)/2;
+  const readyScore= clamp(100 - (readyAvg * 2.2), 0, 100);            // 45% => ~1
+  const pfMisuseScore = clamp((k.pf_misuse_mln / 2.0), 0, 100);        // 200 => 100
+
+  const threat = clamp(
+    0.30*cashScore + 0.28*apScore + 0.22*readyScore + 0.20*pfMisuseScore,
+    0, 100
+  );
+
+  return { scenarioKey: scnKey, scenario: s, kpi: k, threat: Math.round(threat) };
+}
+
+/* =========================================================
+   UI: Tabs + Scenario switching + Countdown + Export
+   ========================================================= */
+let current = computeState("base");
+let autoplayTimer = null;
+
+function setActiveTab(view){
+  document.querySelectorAll('.tab[data-view]').forEach(t => t.classList.remove('active'));
+  document.querySelector(`.tab[data-view="${view}"]`)?.classList.add('active');
+
+  const views = ["overview","capital","risk","sensitivity","action"];
+  for(const v of views){
+    document.getElementById(`view-${v}`).style.display = (v === view) ? "block" : "none";
+  }
+  // resize charts after tab switch
+  setTimeout(resizeAll, 60);
+}
+
+document.querySelectorAll('.tab[data-view]').forEach(btn=>{
+  btn.addEventListener('click', ()=> setActiveTab(btn.dataset.view));
+});
+
+function setScenario(key){
+  document.querySelectorAll('.btn[data-scn]').forEach(b=>b.classList.remove('active'));
+  document.querySelector(`.btn[data-scn="${key}"]`)?.classList.add('active');
+
+  current = computeState(key);
+  renderKpis();
+  renderFlags();
+  renderAllCharts();
+}
+
+document.querySelectorAll('.btn[data-scn]').forEach(btn=>{
+  btn.addEventListener('click', ()=> setScenario(btn.dataset.scn));
+});
+
+function startAutoPlay(){
+  const order = ["base","turnaround","drift","stress"];
+  let idx = order.indexOf(current.scenarioKey);
+  if (idx < 0) idx = 0;
+
+  if (autoplayTimer){
+    clearInterval(autoplayTimer);
+    autoplayTimer = null;
+    document.getElementById('autoPlay').textContent = "▶ Auto-play сценариев";
+    return;
+  }
+  document.getElementById('autoPlay').textContent = "⏸ Stop auto-play";
+  autoplayTimer = setInterval(()=>{
+    idx = (idx + 1) % order.length;
+    setScenario(order[idx]);
+  }, 3500);
+}
+
+document.getElementById('autoPlay').addEventListener('click', startAutoPlay);
+
+function exportJSON(){
+  const payload = {
+    exportedAt: new Date().toISOString(),
+    scenario: current.scenario,
+    threat: current.threat,
+    data: current.kpi
+  };
+  const blob = new Blob([JSON.stringify(payload, null, 2)], {type:"application/json"});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `dashboard_${current.scenarioKey}_${BASE.meta.reportDate}.json`;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  URL.revokeObjectURL(url);
+}
+document.getElementById('exportJson').addEventListener('click', exportJSON);
+
+// Countdown
+function tickCountdown(){
+  const deadline = new Date(BASE.meta.deadlineDate);
+  const now = new Date();
+  const diff = deadline - now;
+  const dd = Math.max(0, Math.floor(diff / (1000*60*60*24)));
+  const hh = Math.max(0, Math.floor((diff % (1000*60*60*24)) / (1000*60*60)));
+  const mm = Math.max(0, Math.floor((diff % (1000*60*60)) / (1000*60)));
+  const ss = Math.max(0, Math.floor((diff % (1000*60)) / 1000));
+
+  const deadTxt = `${deadline.toLocaleDateString('ru-RU')} ${deadline.toLocaleTimeString('ru-RU',{hour:'2-digit',minute:'2-digit'})}`;
+  document.getElementById('deadlineText').textContent = deadTxt;
+  document.getElementById('countdown').textContent = `${dd}д ${hh}ч ${mm}м ${ss}с`;
+
+  setTimeout(tickCountdown, 1000);
+}
+tickCountdown();
+
+/* =========================================================
+   KPI cards + Flags (investor tone)
+   ========================================================= */
+function renderKpis(){
+  const k = current.kpi;
+  const cards = [
+    {t:"Остаток ДС", v: fmt.mln(k.cash_mln), h:"Текущая ликвидность (cash runway)"},
+    {t:"Кредиторка (итого)", v: fmt.mln(k.ap_total_mln), h:`Приор.1: ${fmt.mln(k.ap_p1_mln)}`},
+    {t:"Общий долг", v: fmt.mln(k.debt_total_mln), h:"ПФ + кредиторы"},
+    {t:"Остаток лимита ПФ", v: fmt.mln(k.pf_undrawn_mln), h:`Доступ: ${current.scenario.pfAccess}`},
+    {t:"Нецелевое ПФ", v: fmt.mln(k.pf_misuse_mln), h:"Сигнал банку о потере контроля"},
+    {t:"Эскроу (на счетах)", v: fmt.mln(k.escrow_total_mln), h:"Не ликвидность до выполнения порогов"},
+    {t:"Готовность (Мол.)", v: fmt.pct(k.ready_mol_pct), h:"Порог 30% = ключ к первым раскрытиям"},
+    {t:"Готовность (Дон.)", v: fmt.pct(k.ready_don_pct), h:"Риск задержки ввода/денег"},
+  ];
+
+  const row = document.getElementById('kpiRow');
+  row.innerHTML = "";
+  for(const c of cards){
+    const d = document.createElement('div');
+    d.className = 'card';
+    d.innerHTML = `<h3>${c.t}</h3><div class="big">${c.v}</div><div class="hint">${c.h}</div>`;
+    row.appendChild(d);
+  }
+}
+
+function renderFlags(){
+  const k = current.kpi;
+  const flags = [];
+
+  // Cash vs P1
+  if (k.cash_mln < 5) flags.push({type:'bad', title:'Cash runway на грани', meta:`На счетах ${fmt.mln(k.cash_mln)} при приоритете-1 ${fmt.mln(k.ap_p1_mln)}.`});
+  else flags.push({type:'warn', title:'Ликвидность ограничена', meta:`Нужна дисциплина платежей: cash ${fmt.mln(k.cash_mln)}.`});
+
+  // PF misuse
+  if (k.pf_misuse_mln > 120) flags.push({type:'bad', title:'Доверие банка разрушено', meta:`Нецелевое использование ПФ ${fmt.mln(k.pf_misuse_mln)} — банк “поверит только в бетон”.`});
+
+  // Readiness
+  const avg = (k.ready_mol_pct + k.ready_don_pct)/2;
+  if (avg < 30) flags.push({type:'bad', title:'Готовность ниже “ключа” к раскрытиям', meta:`Средняя готовность ~${fmt.pct(avg)}. Эскроу фактически заморожен.`});
+  else flags.push({type:'ok', title:'Есть окно для раскрытий', meta:`Средняя готовность ~${fmt.pct(avg)}. Ускорение может открыть деньги.`});
+
+  // AP pressure
+  if (k.ap_total_mln > 130) flags.push({type:'bad', title:'Рост кредиторки ускоряет остановку работ', meta:`Кредиторка ${fmt.mln(k.ap_total_mln)}. Риск блокировок/остановки подрядчиков.`});
+  else flags.push({type:'warn', title:'Кредиторка требует комитета', meta:`Нужен платежный комитет и график приоритетов.`});
+
+  // Scenario message
+  flags.push({
+    type: (current.threat >= 85 ? 'bad' : current.threat >= 65 ? 'warn' : 'ok'),
+    title: 'Индекс угрозы (0–100)',
+    meta: `Сейчас: ${current.threat}/100. Это агрегат ликвидности, кредиторки, готовности и сигнала банку.`
+  });
+
+  const container = document.getElementById('flags');
+  container.innerHTML = "";
+  for(const f of flags){
+    const d = document.createElement('div');
+    d.className = `flag ${f.type==='warn'?'warn':f.type==='ok'?'ok':''}`;
+    d.innerHTML = `<b>${f.title}</b><div class="meta">${f.meta}</div>`;
+    container.appendChild(d);
+  }
+}
+
+/* =========================================================
+   CHARTS (ECharts / echarts-gl)
+   ========================================================= */
+let charts = {};
+
+function initCharts(){
+  charts.gaugeThreat = echarts.init(document.getElementById('gaugeThreat'));
+  charts.debt3d = echarts.init(document.getElementById('debt3d'));
+  charts.waterfall3d = echarts.init(document.getElementById('waterfall3d'));
+
+  charts.pfUsage3d = echarts.init(document.getElementById('pfUsage3d'));
+  charts.pfSpend3d = echarts.init(document.getElementById('pfSpend3d'));
+  charts.escrow3d  = echarts.init(document.getElementById('escrow3d'));
+  charts.sales3d   = echarts.init(document.getElementById('sales3d'));
+
+  charts.riskHeat3d = echarts.init(document.getElementById('riskHeat3d'));
+  charts.riskRadar  = echarts.init(document.getElementById('riskRadar'));
+  charts.ready3d     = echarts.init(document.getElementById('ready3d'));
+  charts.timeline    = echarts.init(document.getElementById('timeline'));
+
+  charts.dscrSurface = echarts.init(document.getElementById('dscrSurface'));
+  charts.ltvSurface  = echarts.init(document.getElementById('ltvSurface'));
+}
+
+function renderGauge(){
+  const v = current.threat;
+
+  charts.gaugeThreat.setOption({
+    backgroundColor: 'transparent',
+    animationDuration: 900,
+    series: [{
+      type: 'gauge',
+      startAngle: 210, endAngle: -30,
+      progress: { show: true, width: 18 },
+      axisLine: {
+        lineStyle: {
+          width: 18,
+          color: [
+            [0.5, '#2dd4bf'],
+            [0.75,'#fbbf24'],
+            [1.0, '#fb7185']
+          ]
+        }
+      },
+      pointer: { itemStyle: { color: '#eef1ff' } },
+      axisTick: { show: false },
+      splitLine: { length: 10, lineStyle: { color: 'rgba(255,255,255,.15)' } },
+      axisLabel: { color: 'rgba(255,255,255,.55)' },
+      detail: {
+        valueAnimation: true,
+        formatter: '{value}%',
+        color: '#eef1ff',
+        fontSize: 44,
+        offsetCenter: [0, '35%']
+      },
+      title: {
+        offsetCenter: [0, '70%'],
+        color: 'rgba(255,255,255,.70)',
+        fontWeight: 900,
+        fontSize: 14
+      },
+      data: [{ value: v, name: 'Threat Level' }]
+    }]
+  });
+}
+
+function renderDebt3D(){
+  const k = current.kpi;
+  const data = [
+    ['Кредиторка P1', k.ap_p1_mln],
+    ['Кредиторка P2', k.ap_p2_mln],
+    ['Кредиторка P3', k.ap_p3_mln],
+    ['Нецелевое ПФ',  k.pf_misuse_mln],
+    ['Остаток лимита ПФ', k.pf_undrawn_mln]
+  ];
+
+  charts.debt3d.setOption({
+    backgroundColor: 'transparent',
+    tooltip: {},
+    xAxis3D: { type:'category', data: data.map(d=>d[0]), axisLabel:{color:'#fff', interval:0} },
+    yAxis3D: { type:'value', axisLabel:{color:'#fff'} },
+    zAxis3D: { type:'value' },
+    grid3D: {
+      boxWidth: 240,
+      boxDepth: 85,
+      viewControl: { autoRotate: true, autoRotateSpeed: 5, damping: 0.92 },
+      light: { main:{ intensity:1.25, shadow:true }, ambient:{ intensity:0.35 } }
+    },
+    series: [{
+      type:'bar3D',
+      data: data.map((d,i)=>[i, d[1], 0]),
+      shading:'realistic',
+      itemStyle: {
+        color: (p)=>{
+          const name = data[p.dataIndex][0];
+          if (name.includes('Нецелевое')) return '#fb7185';
+          if (name.includes('P1')) return '#fbbf24';
+          if (name.includes('Остаток')) return '#60a5fa';
+          return '#a78bfa';
+        }
+      },
+      label: { show:true, formatter:(p)=> fmt.mln(p.value[1]), color:'#fff' }
+    }]
+  });
+}
+
+function renderWaterfall3D(){
+  const k = current.kpi;
+
+  // водопад как управленческий: "условная выручка" = договоры (прокси), минусы = СМР/управление/отвлечения
+  const revenueProxy = k.projects.reduce((a,p)=>a + p.contracts_mln, 0);
+  const wf = [
+    ['Договоры (прокси)', revenueProxy],
+    ['СМР', -k.pf_cmr_mln],
+    ['Управление', -k.pf_admin_mln],
+    ['Отвлечено', -k.pf_divert_mln],
+    ['Результат', revenueProxy - k.pf_cmr_mln - k.pf_admin_mln - k.pf_divert_mln]
+  ];
+
+  charts.waterfall3d.setOption({
+    backgroundColor: 'transparent',
+    tooltip: {},
+    xAxis3D: { type:'category', data: wf.map(d=>d[0]), axisLabel:{color:'#fff', interval:0} },
+    yAxis3D: { type:'value', axisLabel:{color:'#fff'} },
+    zAxis3D: { type:'value' },
+    grid3D: {
+      boxWidth: 260,
+      boxDepth: 95,
+      viewControl: { autoRotate: true, autoRotateSpeed: 4, damping: 0.92 },
+      light: { main:{ intensity:1.15, shadow:true }, ambient:{ intensity:0.30 } }
+    },
+    series: [{
+      type:'bar3D',
+      data: wf.map((d,i)=>[i, d[1], 0]),
+      shading:'lambert',
+      itemStyle: {
+        color: (p)=> (wf[p.dataIndex][1] < 0 ? '#fb7185' : '#2dd4bf')
+      },
+      label: { show:true, formatter:(p)=> fmt.mln(p.value[1]), color:'#fff' }
+    }]
+  });
+}
+
+function renderPFUsage3D(){
+  const k = current.kpi;
+  const data = [
+    ['Выбрано', k.pf_drawn_mln],
+    ['Остаток лимита', k.pf_undrawn_mln]
+  ];
+  charts.pfUsage3d.setOption({
+    backgroundColor:'transparent',
+    tooltip:{},
+    xAxis3D:{type:'category', data:data.map(d=>d[0]), axisLabel:{color:'#fff'}},
+    yAxis3D:{type:'value', axisLabel:{color:'#fff'}},
+    zAxis3D:{type:'value'},
+    grid3D:{
+      boxWidth:200, boxDepth:80,
+      viewControl:{autoRotate:true, autoRotateSpeed:5, damping:0.92},
+      light:{main:{intensity:1.2, shadow:true}, ambient:{intensity:0.35}}
+    },
+    series:[{
+      type:'bar3D',
+      data:data.map((d,i)=>[i,d[1],0]),
+      shading:'realistic',
+      itemStyle:{color:(p)=> p.dataIndex===0 ? '#60a5fa' : '#a78bfa'},
+      label:{show:true, formatter:(p)=>fmt.mln(p.value[1]), color:'#fff'}
+    }]
+  });
+}
+
+function renderPFSpend3D(){
+  const k = current.kpi;
+  const data = [
+    ['СМР по назначению', k.pf_cmr_mln],
+    ['Управленч./хоз.',  k.pf_admin_mln],
+    ['Отвлечено',        k.pf_divert_mln]
+  ];
+  charts.pfSpend3d.setOption({
+    backgroundColor:'transparent',
+    tooltip:{},
+    xAxis3D:{type:'category', data:data.map(d=>d[0]), axisLabel:{color:'#fff', interval:0}},
+    yAxis3D:{type:'value', axisLabel:{color:'#fff'}},
+    zAxis3D:{type:'value'},
+    grid3D:{
+      boxWidth:250, boxDepth:90,
+      viewControl:{autoRotate:true, autoRotateSpeed:4, damping:0.92},
+      light:{main:{intensity:1.2, shadow:true}, ambient:{intensity:0.30}}
+    },
+    series:[{
+      type:'bar3D',
+      data:data.map((d,i)=>[i,d[1],0]),
+      shading:'lambert',
+      itemStyle:{color:(p)=>{
+        if(p.dataIndex===2) return '#fb7185';
+        if(p.dataIndex===1) return '#fbbf24';
+        return '#2dd4bf';
+      }},
+      label:{show:true, formatter:(p)=>fmt.mln(p.value[1]), color:'#fff'}
+    }]
+  });
+}
+
+function renderEscrow3D(){
+  const k = current.kpi;
+  const labels = k.projects.map(p=>p.name);
+  const contracts = k.projects.map(p=>p.contracts_mln);
+  const escrow = k.projects.map(p=>p.escrow_mln);
+
+  charts.escrow3d.setOption({
+    backgroundColor:'transparent',
+    tooltip:{},
+    legend:{textStyle:{color:'rgba(255,255,255,.75)'}},
+    xAxis3D:{type:'category', data:labels, axisLabel:{color:'#fff'}},
+    yAxis3D:{type:'value', axisLabel:{color:'#fff'}},
+    zAxis3D:{type:'value'},
+    grid3D:{
+      boxWidth:220, boxDepth:85,
+      viewControl:{autoRotate:true, autoRotateSpeed:5, damping:0.92},
+      light:{main:{intensity:1.25, shadow:true}, ambient:{intensity:0.35}}
+    },
+    series:[
+      {
+        type:'bar3D',
+        name:'Договоры, млн ₽',
+        data: labels.map((_,i)=>[i, contracts[i], 0]),
+        shading:'realistic',
+        itemStyle:{color:'#60a5fa'},
+        label:{show:true, formatter:(p)=>fmt.mln(p.value[1]), color:'#fff'}
+      },
+      {
+        type:'bar3D',
+        name:'Эскроу, млн ₽',
+        data: labels.map((_,i)=>[i, escrow[i], 10]), // слегка смещаем по z, чтобы визуально отличалось
+        shading:'realistic',
+        itemStyle:{color:'#a78bfa'},
+        label:{show:true, formatter:(p)=>fmt.mln(p.value[1]), color:'#fff'}
+      }
+    ]
+  });
+}
+
+function renderSales3D(){
+  const k = current.kpi;
+  const labels = k.projects.map(p=>p.name);
+  const sold = k.projects.map(p=>p.sold_m2);
+  const remain = k.projects.map(p=>p.remain_m2);
+
+  charts.sales3d.setOption({
+    backgroundColor:'transparent',
+    tooltip:{},
+    legend:{textStyle:{color:'rgba(255,255,255,.75)'}},
+    xAxis3D:{type:'category', data:labels, axisLabel:{color:'#fff'}},
+    yAxis3D:{type:'value', axisLabel:{color:'#fff'}},
+    zAxis3D:{type:'value'},
+    grid3D:{
+      boxWidth:220, boxDepth:85,
+      viewControl:{autoRotate:true, autoRotateSpeed:4, damping:0.92},
+      light:{main:{intensity:1.2, shadow:true}, ambient:{intensity:0.33}}
+    },
+    series:[
+      {
+        type:'bar3D',
+        name:'Продано, м²',
+        data: labels.map((_,i)=>[i, sold[i], 0]),
+        shading:'lambert',
+        itemStyle:{color:'#2dd4bf'},
+        label:{show:true, formatter:(p)=>fmt.num(p.value[1])+' м²', color:'#fff'}
+      },
+      {
+        type:'bar3D',
+        name:'Остаток, м²',
+        data: labels.map((_,i)=>[i, remain[i], 10]),
+        shading:'lambert',
+        itemStyle:{color:'#fbbf24'},
+        label:{show:true, formatter:(p)=>fmt.num(p.value[1])+' м²', color:'#fff'}
+      }
+    ]
+  });
+}
+
+function renderRiskHeat3D(){
+  const k = current.kpi;
+
+  // 4 домена риска (0..100)
+  const liquidity = clamp(100 - k.cash_mln*6, 0, 100);
+  const bank = clamp(k.pf_misuse_mln/2.0, 0, 100);
+  const execution = clamp(100 - ((k.ready_mol_pct + k.ready_don_pct)/2)*2.2, 0, 100);
+  const team = clamp(70 + (current.threat-70)*0.5, 0, 100);
+
+  const data = [
+    ['Ликвидность', liquidity],
+    ['Банк', bank],
+    ['Исполнение', execution],
+    ['Команда', team]
+  ];
+
+  charts.riskHeat3d.setOption({
+    backgroundColor:'transparent',
+    tooltip:{},
+    visualMap:{
+      max:100,
+      inRange:{ color:['#2dd4bf','#fbbf24','#fb7185'] },
+      textStyle:{color:'rgba(255,255,255,.7)'}
+    },
+    xAxis3D:{type:'category', data:data.map(d=>d[0]), axisLabel:{color:'#fff'}},
+    yAxis3D:{type:'value', max:100, axisLabel:{color:'#fff'}},
+    zAxis3D:{type:'value'},
+    grid3D:{
+      boxWidth:200, boxDepth:70,
+      viewControl:{autoRotate:true, autoRotateSpeed:5, damping:0.92},
+      light:{main:{intensity:1.25, shadow:true}, ambient:{intensity:0.30}}
+    },
+    series:[{
+      type:'bar3D',
+      data:data.map((d,i)=>[i,d[1],0]),
+      shading:'lambert',
+      label:{show:true, formatter:(p)=>Math.round(p.value[1])+'/100', color:'#fff'}
+    }]
+  });
+}
+
+function renderRiskRadar(){
+  const k = current.kpi;
+
+  const liquidity = clamp(100 - k.cash_mln*6, 0, 100);
+  const bank = clamp(k.pf_misuse_mln/2.0, 0, 100);
+  const execution = clamp(100 - ((k.ready_mol_pct + k.ready_don_pct)/2)*2.2, 0, 100);
+  const sales = clamp(65 + (k.projects[1].remain_m2 - k.projects[1].sold_m2)/80, 0, 100); // грубая прокси для Донецкого
+  const legal = clamp(60 + (k.ap_total_mln-100)/2, 0, 100);
+
+  charts.riskRadar.setOption({
+    backgroundColor:'transparent',
+    tooltip:{},
+    radar:{
+      indicator:[
+        {name:'Ликвидность', max:100},
+        {name:'Банк', max:100},
+        {name:'Исполнение', max:100},
+        {name:'Продажи', max:100},
+        {name:'Юр/контракты', max:100}
+      ],
+      splitNumber:5,
+      axisName:{color:'rgba(255,255,255,.85)', fontWeight:800},
+      splitLine:{lineStyle:{color:'rgba(255,255,255,.10)'}},
+      splitArea:{areaStyle:{color:['rgba(96,165,250,.03)','rgba(251,113,133,.03)']}},
+      axisLine:{lineStyle:{color:'rgba(255,255,255,.12)'}}
+    },
+    series:[{
+      type:'radar',
+      data:[{
+        value:[liquidity, bank, execution, sales, legal],
+        name: current.scenario.name,
+        areaStyle:{opacity:0.20}
+      }],
+      lineStyle:{width:3},
+      symbolSize:6
+    }],
+    legend:{textStyle:{color:'rgba(255,255,255,.75)'}}
+  });
+}
+
+function renderReady3D(){
+  const k = current.kpi;
+  const data = [
+    ['Молодёжный', k.ready_mol_pct],
+    ['Донецкий', k.ready_don_pct]
+  ];
+  charts.ready3d.setOption({
+    backgroundColor:'transparent',
+    tooltip:{},
+    xAxis3D:{type:'category', data:data.map(d=>d[0]), axisLabel:{color:'#fff'}},
+    yAxis3D:{type:'value', max:100, axisLabel:{color:'#fff'}},
+    zAxis3D:{type:'value'},
+    grid3D:{
+      boxWidth:200, boxDepth:70,
+      viewControl:{autoRotate:true, autoRotateSpeed:4, damping:0.92},
+      light:{main:{intensity:1.25, shadow:true}, ambient:{intensity:0.30}}
+    },
+    series:[{
+      type:'bar3D',
+      data:data.map((d,i)=>[i,d[1],0]),
+      shading:'realistic',
+      itemStyle:{color:(p)=> p.value[1] < 30 ? '#fb7185' : '#2dd4bf'},
+      label:{show:true, formatter:(p)=>fmt.pct(p.value[1]), color:'#fff'}
+    }]
+  });
+}
+
+function renderTimeline(){
+  // Таймлайн PE: ключевые вехи 30 дней (можете менять)
+  const now = new Date(BASE.meta.reportDate + "T00:00:00+03:00");
+  const milestones = [
+    {d: 2,  name:'Назначить антикризис-руководителя', risk:'bad'},
+    {d: 5,  name:'13-недельный ДДС + платежный комитет', risk:'bad'},
+    {d: 7,  name:'ТОП-10 кредиторов: мораторий/график', risk:'warn'},
+    {d: 10, name:'Пакет в банк + weekly бетон-репорт', risk:'bad'},
+    {d: 14, name:'План критического пути + актирование', risk:'warn'},
+    {d: 21, name:'+2–3% готовности (факт)', risk:'warn'},
+    {d: 30, name:'+3–5% готовности + частичный доступ ПФ', risk:'ok'}
+  ];
+
+  const x = milestones.map(m => {
+    const dt = new Date(now.getTime() + m.d*24*60*60*1000);
+    return dt.toLocaleDateString('ru-RU',{day:'2-digit',month:'2-digit'});
+  });
+  const y = milestones.map((m,i)=> i+1);
+
+  charts.timeline.setOption({
+    backgroundColor:'transparent',
+    tooltip:{formatter:(p)=> `${x[p.dataIndex]} • <b>${milestones[p.dataIndex].name}</b>`},
+    grid:{left:40,right:20,top:30,bottom:40},
+    xAxis:{
+      type:'category',
+      data:x,
+      axisLabel:{color:'rgba(255,255,255,.75)'},
+      axisLine:{lineStyle:{color:'rgba(255,255,255,.12)'}}
+    },
+    yAxis:{
+      type:'value',
+      min:0, max: milestones.length+1,
+      axisLabel:{show:false},
+      splitLine:{show:false}
+    },
+    series:[{
+      type:'line',
+      data:y,
+      symbol:'circle',
+      symbolSize:12,
+      lineStyle:{width:3},
+      itemStyle:{
+        color:(p)=>{
+          const r = milestones[p.dataIndex].risk;
+          if (r==='bad') return '#fb7185';
+          if (r==='warn') return '#fbbf24';
+          return '#2dd4bf';
+        }
+      },
+      label:{
+        show:true,
+        formatter:(p)=>milestones[p.dataIndex].name,
+        position:'top',
+        color:'rgba(255,255,255,.85)',
+        fontWeight:800
+      }
+    }]
+  });
+}
+
+function renderDSCRSurface(){
+  // DSCR sensitivity surface (proxy):
+  // X: падение продаж (0..30%)
+  // Y: рост ставки (0..4 п.п.)
+  // Z: DSCR proxy = 1.25 - 0.012*x - 0.08*y - threatAdjust
+  const threatAdj = (current.threat - 70) / 300; // 70->0, 100->0.1
+
+  const xVals = [];
+  for(let i=0;i<=30;i+=3) xVals.push(i);
+  const yVals = [];
+  for(let j=0;j<=4;j+=0.5) yVals.push(j);
+
+  const data = [];
+  for(let yi=0; yi<yVals.length; yi++){
+    for(let xi=0; xi<xVals.length; xi++){
+      const x = xVals[xi];
+      const y = yVals[yi];
+      const z = clamp(1.25 - 0.012*x - 0.08*y - threatAdj, 0.4, 1.6);
+      data.push([x, y, z]);
+    }
+  }
+
+  charts.dscrSurface.setOption({
+    backgroundColor:'transparent',
+    tooltip:{formatter:(p)=> `Sales -${p.value[0]}%<br/>Rate +${p.value[1]} п.п.<br/><b>DSCR≈ ${p.value[2].toFixed(2)}</b>`},
+    visualMap:{
+      min:0.6, max:1.4,
+      inRange:{ color:['#fb7185','#fbbf24','#2dd4bf'] },
+      textStyle:{color:'rgba(255,255,255,.7)'}
+    },
+    xAxis3D:{type:'value', name:'Падение продаж, %', axisLabel:{color:'#fff'}, nameTextStyle:{color:'rgba(255,255,255,.75)'}},
+    yAxis3D:{type:'value', name:'Рост ставки, п.п.', axisLabel:{color:'#fff'}, nameTextStyle:{color:'rgba(255,255,255,.75)'}},
+    zAxis3D:{type:'value', name:'DSCR (proxy)', axisLabel:{color:'#fff'}, nameTextStyle:{color:'rgba(255,255,255,.75)'}},
+    grid3D:{
+      viewControl:{autoRotate:true, autoRotateSpeed:4, damping:0.92},
+      light:{main:{intensity:1.2, shadow:true}, ambient:{intensity:0.25}},
+      boxWidth: 240,
+      boxDepth: 170
+    },
+    series:[{
+      type:'surface',
+      wireframe:{show:false},
+      shading:'realistic',
+      data: data
+    }]
+  });
+}
+
+function renderLTVSurface(){
+  // LTV matrix/surface (proxy):
+  // X: готовность (20..60%)
+  // Y: темп продаж (индекс 0.7..1.2)
+  // Z: LTV proxy = 0.78 - 0.006*(ready-30) - 0.18*(salesIdx-1) + threat*0.001
+  const threat = current.threat;
+
+  const ready = [];
+  for(let r=20;r<=60;r+=4) ready.push(r);
+  const salesIdx = [];
+  for(let s=0.7;s<=1.2;s+=0.05) salesIdx.push(Number(s.toFixed(2)));
+
+  const data = [];
+  for(let yi=0; yi<salesIdx.length; yi++){
+    for(let xi=0; xi<ready.length; xi++){
+      const r = ready[xi];
+      const s = salesIdx[yi];
+      const z = clamp(0.78 - 0.006*(r-30) - 0.18*(s-1) + threat*0.001, 0.45, 0.95);
+      data.push([r, s, z]);
+    }
+  }
+
+  charts.ltvSurface.setOption({
+    backgroundColor:'transparent',
+    tooltip:{formatter:(p)=> `Готовность ${p.value[0]}%<br/>SalesIdx ${p.value[1]}<br/><b>LTV≈ ${(p.value[2]*100).toFixed(1)}%</b>`},
+    visualMap:{
+      min:0.50, max:0.90,
+      inRange:{ color:['#2dd4bf','#fbbf24','#fb7185'] }, // ниже = лучше, выше = хуже (но визуально здесь наоборот) — можно поменять, если нужно
+      textStyle:{color:'rgba(255,255,255,.7)'}
+    },
+    xAxis3D:{type:'value', name:'Готовность, %', axisLabel:{color:'#fff'}, nameTextStyle:{color:'rgba(255,255,255,.75)'}},
+    yAxis3D:{type:'value', name:'Sales Index', axisLabel:{color:'#fff'}, nameTextStyle:{color:'rgba(255,255,255,.75)'}},
+    zAxis3D:{type:'value', name:'LTV (proxy)', axisLabel:{color:'#fff'}, nameTextStyle:{color:'rgba(255,255,255,.75)'}},
+    grid3D:{
+      viewControl:{autoRotate:true, autoRotateSpeed:4.5, damping:0.92},
+      light:{main:{intensity:1.2, shadow:true}, ambient:{intensity:0.25}},
+      boxWidth: 240,
+      boxDepth: 170
+    },
+    series:[{
+      type:'surface',
+      wireframe:{show:false},
+      shading:'realistic',
+      data: data
+    }]
+  });
+}
+
+function renderAllCharts(){
+  renderGauge();
+  renderDebt3D();
+  renderWaterfall3D();
+
+  renderPFUsage3D();
+  renderPFSpend3D();
+  renderEscrow3D();
+  renderSales3D();
+
+  renderRiskHeat3D();
+  renderRiskRadar();
+  renderReady3D();
+  renderTimeline();
+
+  renderDSCRSurface();
+  renderLTVSurface();
+}
+
+function resizeAll(){
+  for(const k in charts){
+    try{ charts[k].resize(); }catch(e){}
+  }
+}
+window.addEventListener('resize', resizeAll);
+
+/* =========================================================
+   BOOT
+   ========================================================= */
+initCharts();
+renderKpis();
+renderFlags();
+renderAllCharts();
+</script>
+
+</body>
+</html>
